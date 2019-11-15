@@ -93,7 +93,7 @@ Each configure function holds its domain dedicated configurations only. So the c
 
 - See the example of Kotlin DSL [here](./src/test/resources/kotlin-dsl/build.gradle.kts).
 
-- See the example of Groovy DSL here [here](./src/test/resources/kotlin-dsl/build.gradle.kts).
+- See the example of Groovy DSL here [here](./src/test/resources/groovy-dsl/build.gradle).
 
 ## Interface function
 
