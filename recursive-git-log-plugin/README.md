@@ -36,8 +36,10 @@ buildscript {
 
 apply<RecursiveGitLogPlugin>()
 ```
+
 or
-``````
+
+```
 plugin {
     id("com.linecorp.recursive-git-log-plugin").version(version)
 }
@@ -76,4 +78,3 @@ configure<RecursiveGitLogPluginExtention> {
     logPattern = "%s\n Assignee: @%an\n Reviewed-by: @%cn\n"
 }
 ```
-
