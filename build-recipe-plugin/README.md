@@ -22,7 +22,7 @@ buildscript {
     }
 
     dependencies {
-        classpath("com.linecorp.support.project.multi:build-recipe-plugin:$version")
+        classpath("gradle.plugin.com.linecorp.support.project.multi:build-recipe-plugin:$version")
     }
 }
 ```
@@ -41,7 +41,7 @@ buildscript {
     }
 
     dependencies {
-        classpath("com.linecorp.support.project.multi:build-recipe-plugin:$version")
+        classpath("gradle.plugin.com.linecorp.support.project.multi:build-recipe-plugin:$version")
     }
 }
 ```
