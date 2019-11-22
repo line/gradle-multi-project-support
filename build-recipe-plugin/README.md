@@ -13,44 +13,9 @@ This has been tested on
 - [Java 8 or later](https://adoptopenjdk.net/)
 - [Gradle 5 or later](https://gradle.org/releases/)
 
-### Gradle Kotlin DSL
+### Appliance
 
-```kotlin
-buildscript {
-    repository {
-        jcenter()
-    }
-
-    dependencies {
-        classpath("gradle.plugin.com.linecorp.support.project.multi:build-recipe-plugin:$version")
-    }
-}
-```
-or 
-```
-plugins {
-    id("com.linecorp.build-recipe-plugin").version(version)
-}
-```
-### Gradle Groovy DSL
-
-```groovy
-buildscript {
-    repository {
-        jcenter()
-    }
-
-    dependencies {
-        classpath("gradle.plugin.com.linecorp.support.project.multi:build-recipe-plugin:$version")
-    }
-}
-```
-or
-```
-plugins {
-    id('com.linecorp.build-recipe-plugin').version(version)
-}
-```
+Please follow [Gradle Plugins Portal](https://plugins.gradle.org/plugin/com.linecorp.build-recipe-plugin)'s guidance.
 
 ## Basic concept
 
