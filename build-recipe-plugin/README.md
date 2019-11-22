@@ -36,10 +36,7 @@ Let's suppose that a Gradle multi-project has similar modules.
 Then by using `gradle-recipe-plugin`, you can configure as below. 
 
 ```kotlin
-import com.linecorp.gradle.plugins.recipe.*
-import com.linecorp.gradle.plugins.recipe.matcher.ProjectMatchers.Companion.byTypePrefix
-import com.linecorp.gradle.plugins.recipe.matcher.ProjectMatchers.Companion.byTypeSuffix
-import com.linecorp.gradle.plugins.recipe.matcher.*
+import com.linecorp.support.project.multi.recipe.*
 
 configure(byTypePrefix("java")) {
     apply(plugin="java")
