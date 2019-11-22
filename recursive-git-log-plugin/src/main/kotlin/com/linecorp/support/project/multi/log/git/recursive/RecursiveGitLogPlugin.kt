@@ -115,12 +115,14 @@ open class GitAwareTask : DefaultTask() {
 
 open class GitLogTask @Inject constructor(
     param: RecursiveGitLogParams,
-    @Input private val from: String,
-    @Input private val to: String
+    @Input val from: String,
+    @Input val to: String
 ) :
     GitAwareTask(), RecursiveGitLogParams by param {
+    @Internal
     override fun getGroup() = RecursiveGitLogPlugin.GROUP
 
+    @Internal
     override fun getDescription() = """
                 Produce logs per module affected between two specific points.
                 -Plog.git.from=<from:latestTag>
