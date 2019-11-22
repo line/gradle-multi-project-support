@@ -14,12 +14,6 @@
  * under the License.
  */
 
-plugins {
-    `kotlin-dsl`
-    `java-gradle-plugin`
-    id("com.gradle.plugin-publish")
-}
-
 gradlePlugin {
     plugins {
         register("recursiveGitLogPlugin") {
@@ -30,29 +24,12 @@ gradlePlugin {
     }
 
     dependencies {
-        testImplementation(kotlin("test-junit5"))
-
-        testImplementation(gradleTestKit())
-        testImplementation(gradleApi())
-        testImplementation(gradleKotlinDsl())
-        testImplementation(kotlin("stdlib"))
-
         testImplementation("io.mockk:mockk:1.8.13")
-        testImplementation("org.junit.jupiter:junit-jupiter-params:5.5.1")
         testImplementation("com.willowtreeapps.assertk:assertk-jvm:0.19")
-        testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.5.1")
-    }
-
-    tasks {
-        test {
-            useJUnitPlatform()
-        }
     }
 }
 
 pluginBundle {
-    website = "https://github.com/line/multi-project-support"
-    vcsUrl = "https://github.com/line/multi-project-support"
     description = "A plugin for extract affected change log via git history and Gradle project dependency"
 
     (plugins) {
