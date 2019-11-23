@@ -64,16 +64,16 @@ open class RecursiveGitLogPlugin : Plugin<Project> {
 
     override fun apply(target: Project): Unit = target.run {
         val ext = extensions.create(
-            RecursiveGitLogPluginExtension.EXTENSION_NAME,
-            RecursiveGitLogPluginExtension::class
+                RecursiveGitLogPluginExtension.EXTENSION_NAME,
+                RecursiveGitLogPluginExtension::class
         )
 
         tasks {
             register(
-                "gitLog", GitLogTask::class,
-                ext,
-                (findProperty(FROM_KEY) as String?) ?: "",
-                (findProperty(TO_KEY) as String?) ?: ""
+                    "gitLog", GitLogTask::class,
+                    ext,
+                    (findProperty(FROM_KEY) as String?) ?: "",
+                    (findProperty(TO_KEY) as String?) ?: ""
             )
         }
     }
@@ -81,13 +81,13 @@ open class RecursiveGitLogPlugin : Plugin<Project> {
 
 open class GitAwareTask : DefaultTask() {
     private fun commandLine(exec: Action<in ExecSpec>) =
-        ByteArrayOutputStream().use { os ->
-            project.exec {
-                exec(this)
-                standardOutput = os
+            ByteArrayOutputStream().use { os ->
+                project.exec {
+                    exec(this)
+                    standardOutput = os
+                }
+                os.toString().trim()
             }
-            os.toString().trim()
-        }
 
     private fun commandLine(args: List<String>) = commandLine { commandLine(args.toMutableList()) }
     private fun commandLine(vararg args: String) = commandLine { commandLine(*args) }
@@ -96,9 +96,9 @@ open class GitAwareTask : DefaultTask() {
 
     fun getLastTag(tagPattern: String? = null): String {
         val lastTagCommitHash = gitCommand(
-            "rev-list",
-            tagPattern?.let { "--tags=$it" } ?: "--tags",
-            "--max-count=1"
+                "rev-list",
+                tagPattern?.let { "--tags=$it" } ?: "--tags",
+                "--max-count=1"
         )
 
         if (lastTagCommitHash.isBlank()) {
@@ -114,11 +114,11 @@ open class GitAwareTask : DefaultTask() {
 }
 
 open class GitLogTask @Inject constructor(
-    param: RecursiveGitLogParams,
-    @Input val from: String,
-    @Input val to: String
+        param: RecursiveGitLogParams,
+        @Input val from: String,
+        @Input val to: String
 ) :
-    GitAwareTask(), RecursiveGitLogParams by param {
+        GitAwareTask(), RecursiveGitLogParams by param {
     @Internal
     override fun getGroup() = RecursiveGitLogPlugin.GROUP
 
@@ -136,7 +136,7 @@ open class GitLogTask @Inject constructor(
     val resolutionCache = mutableMapOf<Project, List<String>>()
 
     private fun diffFileName(from: String, to: String) =
-        "change_log_${from}_${to.takeUnless(String::isBlank) ?: "head"}"
+            "change_log_${from}_${to.takeUnless(String::isBlank) ?: "head"}"
 
     private fun resolveDependencies(project: Project): List<String> {
         if (resolutionCache.containsKey(project)) {
@@ -144,49 +144,49 @@ open class GitLogTask @Inject constructor(
         }
 
         return (project
-            .configurations
-            .asMap
-            .values
-            .asSequence()
-            .map { it.allDependencies.withType(ProjectDependency::class) }
-            .flatten()
-            .distinct()
-            .onEach { project.logger.info("[{}] has project dependency [{}]", project, it.dependencyProject) }
-            .map { resolveDependencies(it.dependencyProject) }
-            .flatten()
-            .distinct()
-            .toMutableList()
-            .takeIf { it.isNotEmpty() }
-            ?.also { it.add(project.projectDir.toString()) }
+                .configurations
+                .asMap
+                .values
+                .asSequence()
+                .map { it.allDependencies.withType(ProjectDependency::class) }
+                .flatten()
+                .distinct()
+                .onEach { project.logger.info("[{}] has project dependency [{}]", project, it.dependencyProject) }
+                .map { resolveDependencies(it.dependencyProject) }
+                .flatten()
+                .distinct()
+                .toMutableList()
+                .takeIf { it.isNotEmpty() }
+                ?.also { it.add(project.projectDir.toString()) }
         // TODO use src and specified files only
-            ?: listOf(project.projectDir.toString())
+                ?: listOf(project.projectDir.toString())
+                        .also {
+                            project.logger.info("found terminal project [{}]", project)
+                            project.logger.info("project dir: {}", project.projectDir)
+                        })
                 .also {
-                    project.logger.info("found terminal project [{}]", project)
-                    project.logger.info("project dir: {}", project.projectDir)
-                })
-            .also {
-                project.logger.info(
-                    "resolved dependency dirs for {} is [\n {}\n]",
-                    project,
-                    it.joinToString("\n ")
-                )
-            }.also {
-                resolutionCache[project] = it
-            }
+                    project.logger.info(
+                            "resolved dependency dirs for {} is [\n {}\n]",
+                            project,
+                            it.joinToString("\n ")
+                    )
+                }.also {
+                    resolutionCache[project] = it
+                }
     }
 
     private fun Sequence<Project>.toGitLog(from: String, to: String = ""): String {
         return map {
             moduleNameTransformer(it) to gitCommand(
-                "log",
-                "--pretty=${logPattern}",
-                "$from..$to",
-                it.projectDir.toString(),
-                *trackFilePatterns.toTypedArray(),
-                *resolveDependencies(it).toTypedArray()
+                    "log",
+                    "--pretty=${logPattern}",
+                    "$from..$to",
+                    it.projectDir.toString(),
+                    *trackFilePatterns.toTypedArray(),
+                    *resolveDependencies(it).toTypedArray()
             )
         }.filter { it.second.isNotBlank() }
-            .joinToString(separator = "\n\n---\n\n") { "[${it.first}]\n\n${it.second}" }
+                .joinToString(separator = "\n\n---\n\n") { "[${it.first}]\n\n${it.second}" }
     }
 
     @TaskAction
@@ -197,15 +197,15 @@ open class GitLogTask @Inject constructor(
 
         if (logClassifiers.isNotEmpty()) {
             logClassifiers
-                .mapValues { project.subprojects.asSequence().filter(it.value::invoke).toGitLog(from, to) }
-                .forEach { (classifier, log) ->
-                    project.file("$outputDir/${diffFileName}_$classifier.log").writeText(log)
-                }
+                    .mapValues { project.subprojects.asSequence().filter(it.value::invoke).toGitLog(from, to) }
+                    .forEach { (classifier, log) ->
+                        project.file("$outputDir/${diffFileName}_$classifier.log").writeText(log)
+                    }
         } else {
             project.subprojects
-                .asSequence()
-                .toGitLog(from, to)
-                .also { project.file("$outputDir/$diffFileName.log").writeText(it) }
+                    .asSequence()
+                    .toGitLog(from, to)
+                    .also { project.file("$outputDir/$diffFileName.log").writeText(it) }
         }
     }
 }
