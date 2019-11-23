@@ -117,8 +117,7 @@ open class GitLogTask @Inject constructor(
         param: RecursiveGitLogParams,
         @Input val from: String,
         @Input val to: String
-) :
-        GitAwareTask(), RecursiveGitLogParams by param {
+) : GitAwareTask(), RecursiveGitLogParams by param {
     @Internal
     override fun getGroup() = RecursiveGitLogPlugin.GROUP
 
