@@ -14,21 +14,46 @@
  * under the License.
  */
 
+import com.gradle.publish.PluginBundleExtension
+import com.linecorp.support.project.multi.recipe.configure
+import com.linecorp.support.project.multi.recipe.configureByType
+import com.linecorp.support.project.multi.recipe.configureByTypePrefix
+import com.linecorp.support.project.multi.recipe.configureByTypeSuffix
+import com.linecorp.support.project.multi.recipe.matcher.ProjectMatchers.Companion.byLabel
+import com.linecorp.support.project.multi.recipe.matcher.ProjectMatchers.Companion.byTypeSuffix
+import com.linecorp.support.project.multi.recipe.matcher.and
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
+buildscript {
+    repositories {
+        maven {
+            url = uri("https://plugins.gradle.org/m2/")
+        }
+    }
+    dependencies {
+        classpath("org.gradle.kotlin:plugins:1.3.1")
+    }
+}
+
 plugins {
-    java
+    idea
+    eclipse
+    `visual-studio`
+    xcode
     kotlin("jvm") version embeddedKotlinVersion
     id("com.gradle.plugin-publish").version("0.10.1").apply(false)
     id("org.jmailen.kotlinter") version "2.1.2"
+    id("com.linecorp.build-recipe-plugin") version "1.0.0"
 }
 
 allprojects {
-    apply(plugin = "kotlin")
-
     repositories {
         mavenCentral()
     }
+}
+
+configureByTypePrefix("kotlin") {
+    apply(plugin = "kotlin")
 
     configure<JavaPluginConvention> {
         sourceCompatibility = JavaVersion.VERSION_1_8
@@ -36,5 +61,42 @@ allprojects {
 
     tasks.withType<KotlinCompile> {
         kotlinOptions.jvmTarget = "1.8"
+    }
+}
+
+configureByType("kotlin-gradle-plugin") {
+    apply(plugin = "org.gradle.kotlin.kotlin-dsl")
+    apply(plugin = "org.gradle.java-gradle-plugin")
+    apply(plugin = "com.gradle.plugin-publish")
+
+    configure<GradlePluginDevelopmentExtension> {
+        dependencies {
+            testImplementation(gradleTestKit())
+            testImplementation(gradleApi())
+            testImplementation(gradleKotlinDsl())
+            testImplementation(kotlin("stdlib"))
+        }
+    }
+}
+
+configureByTypeSuffix("gradle-plugin") {
+    configure<PluginBundleExtension> {
+        website = "https://github.com/line/multi-project-support"
+        vcsUrl = "https://github.com/line/multi-project-support"
+    }
+}
+
+configure(byTypeSuffix("gradle-plugin") and byLabel("junit5-platform")) {
+    dependencies {
+        testImplementation(kotlin("test-junit5"))
+        testImplementation("org.junit.jupiter:junit-jupiter-params:5.5.1")
+
+        testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.5.1")
+    }
+
+    tasks {
+        test {
+            useJUnitPlatform()
+        }
     }
 }
