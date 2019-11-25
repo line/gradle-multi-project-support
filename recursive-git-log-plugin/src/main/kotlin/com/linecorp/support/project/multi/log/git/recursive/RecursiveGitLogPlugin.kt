@@ -16,11 +16,7 @@
 
 package com.linecorp.support.project.multi.log.git.recursive
 
-import org.gradle.api.Action
-import org.gradle.api.DefaultTask
-import org.gradle.api.GradleException
-import org.gradle.api.Plugin
-import org.gradle.api.Project
+import org.gradle.api.*
 import org.gradle.api.artifacts.ProjectDependency
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.Internal
@@ -32,17 +28,31 @@ import org.gradle.kotlin.dsl.register
 import org.gradle.kotlin.dsl.withType
 import org.gradle.process.ExecSpec
 import java.io.ByteArrayOutputStream
+import javax.inject.Inject
 
-open class RecursiveGitLogPluginExtension {
+interface RecursiveGitLogParams {
+    @get:Input
+    val moduleNameTransformer: (Project) -> String
+    @get:Input
+    val logClassifiers: Map<String, (Project) -> Boolean>
+    @get:Input
+    val tagPattern: String
+    @get:Input
+    val trackFilePatterns: List<String>
+    @get:Input
+    val logPattern: String
+}
+
+open class RecursiveGitLogPluginExtension : RecursiveGitLogParams {
     companion object {
         const val EXTENSION_NAME = "recursive-git-log-plugin"
     }
 
-    var moduleNameTransformer: (Project) -> String = { it.toString() }
-    var logClassifiers = mutableMapOf<String, (Project) -> Boolean>()
-    var tagPattern = "v*"
-    var trackFilePatterns = mutableListOf("build.gradl*")
-    var logPattern = "%s\n Assignee: @%an\n Reviewed-by: @%cn\n"
+    override var moduleNameTransformer: (Project) -> String = { it.toString() }
+    override var logClassifiers = mutableMapOf<String, (Project) -> Boolean>()
+    override var tagPattern = "v*"
+    override var trackFilePatterns = mutableListOf("build.gradl*")
+    override var logPattern = "%s\n Assignee: @%an\n Reviewed-by: @%cn\n"
 }
 
 open class RecursiveGitLogPlugin : Plugin<Project> {
@@ -59,19 +69,12 @@ open class RecursiveGitLogPlugin : Plugin<Project> {
         )
 
         tasks {
-            register("gitLog", GitLogTask::class) {
-                group = GROUP
-                description = """
-                    Produce logs per module affected between two specific points.
-                    -Plog.git.from=<from:latestTag>
-                    -Plog.git.to=<to:HEAD>
-                """.trimIndent()
-
-                extension = ext
-
-                (findProperty(FROM_KEY) as String?)?.let { from = it }
-                (findProperty(TO_KEY) as String?)?.let { to = it }
-            }
+            register(
+                    "gitLog", GitLogTask::class,
+                    ext,
+                    (findProperty(FROM_KEY) as String?) ?: "",
+                    (findProperty(TO_KEY) as String?) ?: ""
+            )
         }
     }
 }
@@ -110,17 +113,23 @@ open class GitAwareTask : DefaultTask() {
     }
 }
 
-open class GitLogTask : GitAwareTask() {
+open class GitLogTask @Inject constructor(
+        param: RecursiveGitLogParams,
+        @Input val from: String,
+        @Input val to: String
+) : GitAwareTask(), RecursiveGitLogParams by param {
+    @Internal
+    override fun getGroup() = RecursiveGitLogPlugin.GROUP
+
+    @Internal
+    override fun getDescription() = """
+                Produce logs per module affected between two specific points.
+                -Plog.git.from=<from:latestTag>
+                -Plog.git.to=<to:HEAD>
+            """.trimIndent()
+
     @OutputDirectory
     val outputDir = project.buildDir
-
-    @Input
-    var extension: RecursiveGitLogPluginExtension = RecursiveGitLogPluginExtension()
-
-    @Input
-    var from = ""
-    @Input
-    var to = ""
 
     @Internal
     val resolutionCache = mutableMapOf<Project, List<String>>()
@@ -167,12 +176,12 @@ open class GitLogTask : GitAwareTask() {
 
     private fun Sequence<Project>.toGitLog(from: String, to: String = ""): String {
         return map {
-            extension.moduleNameTransformer(it) to gitCommand(
+            moduleNameTransformer(it) to gitCommand(
                     "log",
-                    "--pretty=${extension.logPattern}",
+                    "--pretty=${logPattern}",
                     "$from..$to",
                     it.projectDir.toString(),
-                    *extension.trackFilePatterns.toTypedArray(),
+                    *trackFilePatterns.toTypedArray(),
                     *resolveDependencies(it).toTypedArray()
             )
         }.filter { it.second.isNotBlank() }
@@ -181,12 +190,12 @@ open class GitLogTask : GitAwareTask() {
 
     @TaskAction
     fun act() {
-        val from = this.from.takeIf(String::isNotBlank) ?: getLastTag(extension.tagPattern)
+        val from = this.from.takeIf(String::isNotBlank) ?: getLastTag(tagPattern)
         val to = this.to
         val diffFileName = diffFileName(from, to)
 
-        if (extension.logClassifiers.isNotEmpty()) {
-            extension.logClassifiers
+        if (logClassifiers.isNotEmpty()) {
+            logClassifiers
                     .mapValues { project.subprojects.asSequence().filter(it.value::invoke).toGitLog(from, to) }
                     .forEach { (classifier, log) ->
                         project.file("$outputDir/${diffFileName}_$classifier.log").writeText(log)
