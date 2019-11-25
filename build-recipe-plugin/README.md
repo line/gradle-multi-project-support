@@ -13,44 +13,9 @@ This has been tested on
 - [Java 8 or later](https://adoptopenjdk.net/)
 - [Gradle 5 or later](https://gradle.org/releases/)
 
-### Gradle Kotlin DSL
+### Appliance
 
-```kotlin
-buildscript {
-    repository {
-        jcenter()
-    }
-
-    dependencies {
-        classpath("gradle.plugin.com.linecorp.support.project.multi:build-recipe-plugin:$version")
-    }
-}
-```
-or 
-```
-plugins {
-    id("com.linecorp.build-recipe-plugin").version(version)
-}
-```
-### Gradle Groovy DSL
-
-```groovy
-buildscript {
-    repository {
-        jcenter()
-    }
-
-    dependencies {
-        classpath("gradle.plugin.com.linecorp.support.project.multi:build-recipe-plugin:$version")
-    }
-}
-```
-or
-```
-plugins {
-    id('com.linecorp.build-recipe-plugin').version(version)
-}
-```
+Please follow [Gradle Plugins Portal](https://plugins.gradle.org/plugin/com.linecorp.build-recipe-plugin)'s guidance.
 
 ## Basic concept
 
@@ -71,10 +36,7 @@ Let's suppose that a Gradle multi-project has similar modules.
 Then by using `gradle-recipe-plugin`, you can configure as below. 
 
 ```kotlin
-import com.linecorp.gradle.plugins.recipe.*
-import com.linecorp.gradle.plugins.recipe.matcher.ProjectMatchers.Companion.byTypePrefix
-import com.linecorp.gradle.plugins.recipe.matcher.ProjectMatchers.Companion.byTypeSuffix
-import com.linecorp.gradle.plugins.recipe.matcher.*
+import com.linecorp.support.project.multi.recipe.*
 
 configure(byTypePrefix("java")) {
     apply(plugin="java")

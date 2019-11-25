@@ -19,31 +19,9 @@ This has been tested on
 - [Java 8 or later](https://adoptopenjdk.net/)
 - [Gradle 5 or later](https://gradle.org/releases/)
 
-### Gradle Kotlin DSL
+### Appliance
 
-```kotlin
-import com.linecorp.gradle.plugins.log.git.recursive.RecursiveGitLogPlugin
-
-buildscript {
-    repository {
-        jcenter()
-    }
-
-    dependencies {
-        classpath("com.linecorp.support.project.multi:recursive-git-log-plugin:$version")
-    }
-}
-
-apply<RecursiveGitLogPlugin>()
-```
-
-or
-
-```
-plugin {
-    id("com.linecorp.recursive-git-log-plugin").version(version)
-}
-```
+Please follow [Gradle Plugins Portal](https://plugins.gradle.org/plugin/com.linecorp.recursive-git-log-plugin)'s guidance.
 
 and type
 
@@ -60,7 +38,7 @@ So please note that it may be different from actual.
 ## Configurations
 
 ```kotlin
-import com.linecorp.gradle.plugins.log.git.recursive.RecursiveGitLogPluginExtension
+import com.linecorp.support.project.multi.log.git.recursive.RecursiveGitLogPluginExtension
 
 configure<RecursiveGitLogPluginExtention> {
     // Way to support separated change log by some constraints 
