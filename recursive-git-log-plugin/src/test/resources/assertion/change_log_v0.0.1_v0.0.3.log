@@ -1,0 +1,73 @@
+[project ':coffee']
+
+Add country of origin into coffee entity
+ Assignee: @gyeongil-goo
+ Reviewed-by: @gyeongil-goo
+
+---
+
+[project ':juice']
+
+Add user agent header for juice client
+ Assignee: @gyeongil-goo
+ Reviewed-by: @gyeongil-goo
+
+---
+
+[project ':coffee:api']
+
+Add country of origin into coffee entity
+ Assignee: @gyeongil-goo
+ Reviewed-by: @gyeongil-goo
+
+---
+
+[project ':coffee:protocol']
+
+Add country of origin into coffee entity
+ Assignee: @gyeongil-goo
+ Reviewed-by: @gyeongil-goo
+
+---
+
+[project ':juice:api']
+
+Add user agent header for juice client
+ Assignee: @gyeongil-goo
+ Reviewed-by: @gyeongil-goo
+
+---
+
+[project ':shop:server']
+
+Add user agent header for juice client
+ Assignee: @gyeongil-goo
+ Reviewed-by: @gyeongil-goo
+
+Add country of origin into coffee entity
+ Assignee: @gyeongil-goo
+ Reviewed-by: @gyeongil-goo
+
+---
+
+[project ':coffee:api:client']
+
+Add country of origin into coffee entity
+ Assignee: @gyeongil-goo
+ Reviewed-by: @gyeongil-goo
+
+---
+
+[project ':coffee:api:server']
+
+Add country of origin into coffee entity
+ Assignee: @gyeongil-goo
+ Reviewed-by: @gyeongil-goo
+
+---
+
+[project ':juice:api:client']
+
+Add user agent header for juice client
+ Assignee: @gyeongil-goo
+ Reviewed-by: @gyeongil-goo

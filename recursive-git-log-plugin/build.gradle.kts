@@ -39,3 +39,17 @@ pluginBundle {
         }
     }
 }
+
+tasks {
+    val prepareSubmodule by registering(Exec::class) {
+        commandLine("git", "submodule", "update", "--init")
+    }
+
+    withType<Test> {
+        dependsOn(prepareSubmodule)
+    }
+
+    val clean by getting(Delete::class) {
+        delete(file("src/test/resources/sample"))
+    }
+}
