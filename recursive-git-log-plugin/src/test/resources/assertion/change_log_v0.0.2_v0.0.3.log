@@ -1,0 +1,29 @@
+[project ':juice']
+
+Add user agent header for juice client
+ Assignee: @gyeongil-goo
+ Reviewed-by: @gyeongil-goo
+
+---
+
+[project ':juice:api']
+
+Add user agent header for juice client
+ Assignee: @gyeongil-goo
+ Reviewed-by: @gyeongil-goo
+
+---
+
+[project ':shop:server']
+
+Add user agent header for juice client
+ Assignee: @gyeongil-goo
+ Reviewed-by: @gyeongil-goo
+
+---
+
+[project ':juice:api:client']
+
+Add user agent header for juice client
+ Assignee: @gyeongil-goo
+ Reviewed-by: @gyeongil-goo
