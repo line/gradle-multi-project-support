@@ -17,7 +17,7 @@
 package com.linecorp.support.project.multi.recipe
 
 import assertk.assertThat
-import assertk.assertions.isTrue
+import assertk.assertions.containsAll
 import org.gradle.testkit.runner.GradleRunner
 import org.junit.jupiter.api.Test
 import java.nio.file.Paths
@@ -69,7 +69,7 @@ project ':juice:api:protocol' is configured by
 project ':juice:api:server' is configured by 
  - type prefix [java]
  - type having [boot]
- - type suffix [boot-application]""".trimIndent()
+ - type suffix [boot-application]""".trimIndent().lines().toTypedArray()
 
     @Test
     fun `kotlin dsl test`() {
@@ -78,11 +78,11 @@ project ':juice:api:server' is configured by
         GradleRunner.create()
                 .withProjectDir(file.toFile())
                 .withPluginClasspath()
-                .withArguments("allProjectReport", "--stacktrace")
-                .withGradleVersion("5.5.1")
+                .withArguments("allProjectReport")
                 .build()
                 .also { println(it.output) }
-                .also { assertThat(it.output.contains(expected)).isTrue() }
+                .let { it.output.lines() }
+                .also { assertThat(it).containsAll(*expected) }
     }
 
     @Test
@@ -92,10 +92,10 @@ project ':juice:api:server' is configured by
         GradleRunner.create()
                 .withProjectDir(file.toFile())
                 .withPluginClasspath()
-                .withArguments("allProjectReport", "--stacktrace")
-                .withGradleVersion("5.5.1")
+                .withArguments("allProjectReport")
                 .build()
                 .also { println(it.output) }
-                .also { assertThat(it.output.contains(expected)).isTrue() }
+                .let { it.output.lines() }
+                .also { assertThat(it).containsAll(*expected) }
     }
 }
