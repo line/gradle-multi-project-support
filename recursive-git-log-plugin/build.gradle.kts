@@ -22,11 +22,6 @@ gradlePlugin {
             implementationClass = "com.linecorp.support.project.multi.log.git.recursive.RecursiveGitLogPlugin"
         }
     }
-
-    dependencies {
-        testImplementation("io.mockk:mockk:1.8.13")
-        testImplementation("com.willowtreeapps.assertk:assertk-jvm:0.19")
-    }
 }
 
 pluginBundle {

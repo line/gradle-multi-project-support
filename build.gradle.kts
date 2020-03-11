@@ -92,6 +92,8 @@ configure(byTypeSuffix("gradle-plugin") and byLabel("junit5-platform")) {
         testImplementation("org.junit.jupiter:junit-jupiter-params:5.5.1")
 
         testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.5.1")
+        testImplementation("io.mockk:mockk:1.9.3")
+        testImplementation("com.willowtreeapps.assertk:assertk-jvm:0.21")
     }
 
     tasks {
