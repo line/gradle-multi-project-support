@@ -61,8 +61,6 @@ open class RecursiveGitLogExtension : RecursiveGitLogParams {
 
 enum class OutputType {
     STDOUT,
-    // TODO
-    FILE
 }
 
 interface GitAffectedModuleParams {
@@ -297,7 +295,6 @@ open class GitAffectedModuleTask @Inject constructor(
                 .run {
                     when (output) {
                         OutputType.STDOUT -> forEach { println(it) }
-                        OutputType.FILE -> GradleException("Not implemented yet.")
                     }
                 }
     }
