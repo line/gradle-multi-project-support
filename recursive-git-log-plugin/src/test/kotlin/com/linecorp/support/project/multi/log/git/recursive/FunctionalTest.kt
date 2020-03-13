@@ -17,19 +17,20 @@
 package com.linecorp.support.project.multi.log.git.recursive
 
 import assertk.assertThat
+import assertk.assertions.contains
 import assertk.assertions.isEqualTo
+import org.gradle.kotlin.dsl.support.normaliseLineSeparators
 import org.gradle.testkit.runner.GradleRunner
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 import java.io.File
 
 class FunctionalTest {
+    private val here = File("").absolutePath
+    private val path = File("$here/src/test/resources/sample")
 
     @Test
-    fun test() {
-        val here = File("").absolutePath
-
-        val path = File("$here/src/test/resources/sample")
+    fun `gitLog test`() {
         val expectedFilePath = File("$here/src/test/resources/assertion")
 
         GradleRunner.create()
@@ -68,5 +69,52 @@ class FunctionalTest {
         val expectedLog = File(expected).readLines().joinToString("\n")
 
         assertThat(gitLog).isEqualTo(expectedLog)
+    }
+
+    @Test
+    fun `gitAffectedModules test`() {
+
+        GradleRunner.create()
+                .withProjectDir(path)
+                .withPluginClasspath()
+                .withArguments("gitAffectedModules", "-Plog.git.from=v0.0.1", "-Plog.git.to=v0.0.2")
+                .build()
+                .also { assertThat(it.output.normaliseLineSeparators()).contains("""
+                    project ':coffee'
+                    project ':coffee:api'
+                    project ':coffee:protocol'
+                    project ':shop:server'
+                    project ':coffee:api:client'
+                    project ':coffee:api:server'
+                """.trimIndent()) }
+
+        GradleRunner.create()
+                .withProjectDir(path)
+                .withPluginClasspath()
+                .withArguments("gitAffectedModules", "-Plog.git.from=v0.0.2", "-Plog.git.to=v0.0.3")
+                .build()
+                .also { assertThat(it.output.normaliseLineSeparators()).contains("""
+                    project ':juice'
+                    project ':juice:api'
+                    project ':shop:server'
+                    project ':juice:api:client'
+                """.trimIndent()) }
+
+        GradleRunner.create()
+                .withProjectDir(path)
+                .withPluginClasspath()
+                .withArguments("gitAffectedModules", "-Plog.git.from=v0.0.1", "-Plog.git.to=v0.0.3")
+                .build()
+                .also { assertThat(it.output.normaliseLineSeparators()).contains("""
+                    project ':coffee'
+                    project ':juice'
+                    project ':coffee:api'
+                    project ':coffee:protocol'
+                    project ':juice:api'
+                    project ':shop:server'
+                    project ':coffee:api:client'
+                    project ':coffee:api:server'
+                    project ':juice:api:client'
+                """.trimIndent()) }
     }
 }
