@@ -7,12 +7,25 @@ jobs:
     name: Publish plugin to gradle plugins portal
     steps:
       - uses: actions/checkout@v2
+      - name: Write gradle plugins portal publish key
+        uses: christian-draeger/write-properties@1.0.1
+        with:
+          path: './gradle.properties'
+          property: 'gradle.publish.key'
+          value: '${{ secrets.PUBLISH_KEY }}'
+      - name: Write gradle plugins portal publish secret
+        uses: christian-draeger/write-properties@1.0.1
+        with:
+          path: './gradle.properties'
+          property: 'gradle.publish.secret'
+          value: '${{ secrets.PUBLISH_SECRET }}'
       - name: Set up JDK 12
         uses: actions/setup-java@v1
         with:
           java-version: 12
       - name: Grant execute permission for gradlew
         run: chmod +x gradlew
+      - run: cat ./gradle.properties
       - name: Publish plugins with gradle
         env:
           GRADLE_PUBLISH_KEY: ${{ secrets.PUBLISH_KEY }}
