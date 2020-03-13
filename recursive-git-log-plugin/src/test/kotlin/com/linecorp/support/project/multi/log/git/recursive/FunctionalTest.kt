@@ -19,6 +19,7 @@ package com.linecorp.support.project.multi.log.git.recursive
 import assertk.assertThat
 import assertk.assertions.contains
 import assertk.assertions.isEqualTo
+import org.gradle.kotlin.dsl.support.normaliseLineSeparators
 import org.gradle.testkit.runner.GradleRunner
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
@@ -78,7 +79,7 @@ class FunctionalTest {
                 .withPluginClasspath()
                 .withArguments("gitAffectedModules", "-Plog.git.from=v0.0.1", "-Plog.git.to=v0.0.2")
                 .build()
-                .also { assertThat(it.output).contains("""
+                .also { assertThat(it.output.normaliseLineSeparators()).contains("""
                     project ':coffee'
                     project ':coffee:api'
                     project ':coffee:protocol'
@@ -92,7 +93,7 @@ class FunctionalTest {
                 .withPluginClasspath()
                 .withArguments("gitAffectedModules", "-Plog.git.from=v0.0.2", "-Plog.git.to=v0.0.3")
                 .build()
-                .also { assertThat(it.output).contains("""
+                .also { assertThat(it.output.normaliseLineSeparators()).contains("""
                     project ':juice'
                     project ':juice:api'
                     project ':shop:server'
@@ -104,7 +105,7 @@ class FunctionalTest {
                 .withPluginClasspath()
                 .withArguments("gitAffectedModules", "-Plog.git.from=v0.0.1", "-Plog.git.to=v0.0.3")
                 .build()
-                .also { assertThat(it.output).contains("""
+                .also { assertThat(it.output.normaliseLineSeparators()).contains("""
                     project ':coffee'
                     project ':juice'
                     project ':coffee:api'
