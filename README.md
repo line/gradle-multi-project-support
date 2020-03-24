@@ -11,6 +11,10 @@ We are focusing on the way to create or manage large scale multi-projects includ
 * [recursive-git-log-plugin](./recursive-git-log-plugin)
   * A Gradle plugin for extracting the list of affected(modified) modules.
 
+## How to chat with us
+
+Join [our Slack workspace.](https://join.slack.com/t/gradlemultipr-uuk7347/shared_invite/zt-cwm6ycch-aswbpyHQS8_UfPakO1wkDA)
+
 ## How to contribute
 
  See [CONTRIBUTING.md](CONTRIBUTING.md).
