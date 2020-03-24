@@ -1,0 +1,4 @@
+[submodule "sample"]
+	path = recursive-git-log-plugin/src/test/resources/sample
+	url = https://github.com/line/gradle-multi-project-support-sample.git
+	branch = master

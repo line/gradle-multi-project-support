@@ -1,5 +1,7 @@
 # Build Recipe Plugin
 
+[![Gradle Plugin Portal](https://img.shields.io/maven-metadata/v/https/plugins.gradle.org/m2/com/linecorp/build-recipe-plugin/com.linecorp.build-recipe-plugin.gradle.plugin/maven-metadata.xml.svg?colorB=007ec6&label=Gradle%20Plugin%20Portal)](https://plugins.gradle.org/plugin/com.linecorp.build-recipe-plugin)
+
 A Gradle plugin which makes your build configuration **reusable** and **centralized**.
 
 We were strongly inspired by [Armeria's build scripts](https://github.com/line/armeria/tree/master/gradle/scripts).

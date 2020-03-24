@@ -1,0 +1,45 @@
+[project ':coffee']
+
+Add country of origin into coffee entity
+ Assignee: @gyeongil-goo
+ Reviewed-by: @gyeongil-goo
+
+---
+
+[project ':coffee:api']
+
+Add country of origin into coffee entity
+ Assignee: @gyeongil-goo
+ Reviewed-by: @gyeongil-goo
+
+---
+
+[project ':coffee:protocol']
+
+Add country of origin into coffee entity
+ Assignee: @gyeongil-goo
+ Reviewed-by: @gyeongil-goo
+
+---
+
+[project ':shop:server']
+
+Add country of origin into coffee entity
+ Assignee: @gyeongil-goo
+ Reviewed-by: @gyeongil-goo
+
+---
+
+[project ':coffee:api:client']
+
+Add country of origin into coffee entity
+ Assignee: @gyeongil-goo
+ Reviewed-by: @gyeongil-goo
+
+---
+
+[project ':coffee:api:server']
+
+Add country of origin into coffee entity
+ Assignee: @gyeongil-goo
+ Reviewed-by: @gyeongil-goo

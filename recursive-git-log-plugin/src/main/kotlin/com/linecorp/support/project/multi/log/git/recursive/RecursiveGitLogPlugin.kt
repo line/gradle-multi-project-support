@@ -33,19 +33,23 @@ import javax.inject.Inject
 interface RecursiveGitLogParams {
     @get:Input
     val moduleNameTransformer: (Project) -> String
+
     @get:Input
     val logClassifiers: Map<String, (Project) -> Boolean>
+
     @get:Input
     val tagPattern: String
+
     @get:Input
     val trackFilePatterns: List<String>
+
     @get:Input
     val logPattern: String
 }
 
-open class RecursiveGitLogPluginExtension : RecursiveGitLogParams {
+open class RecursiveGitLogExtension : RecursiveGitLogParams {
     companion object {
-        const val EXTENSION_NAME = "recursive-git-log-plugin"
+        const val EXTENSION_NAME = "recursive-git-log-extension"
     }
 
     override var moduleNameTransformer: (Project) -> String = { it.toString() }
@@ -53,6 +57,39 @@ open class RecursiveGitLogPluginExtension : RecursiveGitLogParams {
     override var tagPattern = "v*"
     override var trackFilePatterns = mutableListOf("build.gradl*")
     override var logPattern = "%s\n Assignee: @%an\n Reviewed-by: @%cn\n"
+}
+
+enum class OutputType {
+    STDOUT,
+}
+
+interface GitAffectedModuleParams {
+    @get:Input
+    val moduleNameTransformer: (Project) -> String
+
+    @get:Input
+    val affectedModuleFilter: (Project) -> Boolean
+
+    @get:Input
+    val tagPattern: String
+
+    @get:Input
+    val trackFilePatterns: List<String>
+
+    @get:Input
+    val output: OutputType
+}
+
+open class GitAffectedModuleExtension : GitAffectedModuleParams {
+    companion object {
+        const val EXTENSION_NAME = "git-affected-modules-extension"
+    }
+
+    override var moduleNameTransformer: (Project) -> String = { it.toString() }
+    override var affectedModuleFilter: (Project) -> Boolean = { true }
+    override var tagPattern = "v*"
+    override val trackFilePatterns: List<String> = mutableListOf()
+    override val output = OutputType.STDOUT
 }
 
 open class RecursiveGitLogPlugin : Plugin<Project> {
@@ -63,15 +100,27 @@ open class RecursiveGitLogPlugin : Plugin<Project> {
     }
 
     override fun apply(target: Project): Unit = target.run {
-        val ext = extensions.create(
-                RecursiveGitLogPluginExtension.EXTENSION_NAME,
-                RecursiveGitLogPluginExtension::class
+        val recursiveGitLogExtension = extensions.create(
+                RecursiveGitLogExtension.EXTENSION_NAME,
+                RecursiveGitLogExtension::class
+        )
+
+        val gitAffectedModuleExtension = extensions.create(
+                GitAffectedModuleExtension.EXTENSION_NAME,
+                GitAffectedModuleExtension::class
         )
 
         tasks {
             register(
                     "gitLog", GitLogTask::class,
-                    ext,
+                    recursiveGitLogExtension,
+                    (findProperty(FROM_KEY) as String?) ?: "",
+                    (findProperty(TO_KEY) as String?) ?: ""
+            )
+
+            register(
+                    "gitAffectedModules", GitAffectedModuleTask::class,
+                    gitAffectedModuleExtension,
                     (findProperty(FROM_KEY) as String?) ?: "",
                     (findProperty(TO_KEY) as String?) ?: ""
             )
@@ -113,6 +162,38 @@ open class GitAwareTask : DefaultTask() {
     }
 }
 
+private val resolutionCache = mutableMapOf<Project, Set<Project>>()
+
+private fun resolveDependencies(project: Project): Set<Project> {
+    if (resolutionCache.containsKey(project)) {
+        return resolutionCache[project]!!
+    }
+
+    return (project
+            .configurations
+            .asMap
+            .values
+            .asSequence()
+            .map { it.allDependencies.withType(ProjectDependency::class) }
+            .flatten()
+            .distinct()
+            .onEach { project.logger.info("[{}] has project dependency [{}]", project, it.dependencyProject) }
+            .map { resolveDependencies(it.dependencyProject) }
+            .flatten()
+            .distinct()
+            .toMutableSet()
+            .takeIf { it.isNotEmpty() }
+            ?.also { it.add(project) }
+            ?: setOf(project))
+            .also {
+                project.logger.info(
+                        "resolved dependency dirs for {} is [\n {}\n]",
+                        project,
+                        it.joinToString("\n ") { p -> p.projectDir.toString() }
+                )
+            }.also { resolutionCache[project] = it }
+}
+
 open class GitLogTask @Inject constructor(
         param: RecursiveGitLogParams,
         @Input val from: String,
@@ -131,48 +212,10 @@ open class GitLogTask @Inject constructor(
     @OutputDirectory
     val outputDir = project.buildDir
 
-    @Internal
-    val resolutionCache = mutableMapOf<Project, List<String>>()
 
     private fun diffFileName(from: String, to: String) =
             "change_log_${from}_${to.takeUnless(String::isBlank) ?: "head"}"
 
-    private fun resolveDependencies(project: Project): List<String> {
-        if (resolutionCache.containsKey(project)) {
-            return resolutionCache[project]!!
-        }
-
-        return (project
-                .configurations
-                .asMap
-                .values
-                .asSequence()
-                .map { it.allDependencies.withType(ProjectDependency::class) }
-                .flatten()
-                .distinct()
-                .onEach { project.logger.info("[{}] has project dependency [{}]", project, it.dependencyProject) }
-                .map { resolveDependencies(it.dependencyProject) }
-                .flatten()
-                .distinct()
-                .toMutableList()
-                .takeIf { it.isNotEmpty() }
-                ?.also { it.add(project.projectDir.toString()) }
-        // TODO use src and specified files only
-                ?: listOf(project.projectDir.toString())
-                        .also {
-                            project.logger.info("found terminal project [{}]", project)
-                            project.logger.info("project dir: {}", project.projectDir)
-                        })
-                .also {
-                    project.logger.info(
-                            "resolved dependency dirs for {} is [\n {}\n]",
-                            project,
-                            it.joinToString("\n ")
-                    )
-                }.also {
-                    resolutionCache[project] = it
-                }
-    }
 
     private fun Sequence<Project>.toGitLog(from: String, to: String = ""): String {
         return map {
@@ -180,9 +223,9 @@ open class GitLogTask @Inject constructor(
                     "log",
                     "--pretty=${logPattern}",
                     "$from..$to",
-                    it.projectDir.toString(),
+                    it.projectDir.absolutePath,
                     *trackFilePatterns.toTypedArray(),
-                    *resolveDependencies(it).toTypedArray()
+                    *resolveDependencies(it).map { p -> p.projectDir.absolutePath }.toTypedArray()
             )
         }.filter { it.second.isNotBlank() }
                 .joinToString(separator = "\n\n---\n\n") { "[${it.first}]\n\n${it.second}" }
@@ -209,3 +252,50 @@ open class GitLogTask @Inject constructor(
     }
 }
 
+open class GitAffectedModuleTask @Inject constructor(
+        param: GitAffectedModuleParams,
+        @Input val from: String,
+        @Input val to: String
+) : GitAwareTask(), GitAffectedModuleParams by param {
+    @Internal
+    override fun getGroup() = RecursiveGitLogPlugin.GROUP
+
+    @Internal
+    override fun getDescription() = """
+                Produce affected modules between two specific points.
+                -Plog.git.from=<from:latestTag>
+                -Plog.git.to=<to:HEAD>
+            """.trimIndent()
+
+    @OutputDirectory
+    val outputDir = project.buildDir
+
+    private fun Sequence<Project>.findAffectedModules(from: String, to: String = ""): Sequence<Project> {
+        return filter {
+            gitCommand(
+                    "log",
+                    "$from..$to",
+                    it.projectDir.absolutePath,
+                    *resolveDependencies(it).map { p -> p.projectDir.absolutePath }.toTypedArray()
+            ).isNotBlank()
+        }
+    }
+
+    @TaskAction
+    fun act() {
+        val from = this.from.takeIf(String::isNotBlank) ?: getLastTag(tagPattern)
+        val to = this.to
+
+        project.allprojects
+                .asSequence()
+                .filter { it != project.rootProject }
+                .findAffectedModules(from, to)
+                .filter(affectedModuleFilter)
+                .map(moduleNameTransformer)
+                .run {
+                    when (output) {
+                        OutputType.STDOUT -> forEach { println(it) }
+                    }
+                }
+    }
+}

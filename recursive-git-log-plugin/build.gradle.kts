@@ -22,11 +22,6 @@ gradlePlugin {
             implementationClass = "com.linecorp.support.project.multi.log.git.recursive.RecursiveGitLogPlugin"
         }
     }
-
-    dependencies {
-        testImplementation("io.mockk:mockk:1.8.13")
-        testImplementation("com.willowtreeapps.assertk:assertk-jvm:0.19")
-    }
 }
 
 pluginBundle {
@@ -37,5 +32,19 @@ pluginBundle {
             displayName = "Recursive Git Log Plugin"
             tags = listOf("multi-project", "multi-application", "history", "git")
         }
+    }
+}
+
+tasks {
+    val prepareSubmodule by registering(Exec::class) {
+        commandLine("git", "submodule", "update", "--init")
+    }
+
+    withType<Test> {
+        dependsOn(prepareSubmodule)
+    }
+
+    val clean by getting(Delete::class) {
+        delete(file("src/test/resources/sample"))
     }
 }

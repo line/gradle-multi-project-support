@@ -1,5 +1,7 @@
 # Recursive Git Log Plugin
 
+[![Gradle Plugin Portal](https://img.shields.io/maven-metadata/v/https/plugins.gradle.org/m2/com/linecorp/recursive-git-log-plugin/com.linecorp.recursive-git-log-plugin.gradle.plugin/maven-metadata.xml.svg?colorB=007ec6&label=Gradle%20Plugin%20Portal)](https://plugins.gradle.org/plugin/com.linecorp.recursive-git-log-plugin)
+
 A Gradle plugin to extract the changelog of the affected project via git history log, for large scale Gradle multi-project.
 
 ## Motivation
