@@ -19,7 +19,7 @@ Join [our Slack workspace.](https://join.slack.com/t/gradlemultipr-uuk7347/share
 
  See [CONTRIBUTING.md](CONTRIBUTING.md).
 
-If you believe you have discovered a vulnerability or have an issue related to security, please contact the maintainer directly or send us a email to [dl_oss_dev@linecorp.com](mailto:dl_oss_dev@linecorp.com) before sending a pull request.
+If you believe you have discovered a vulnerability or have an issue related to security, please contact the maintainer directly or send us an email to [dl_oss_dev@linecorp.com](mailto:dl_oss_dev@linecorp.com) before sending a pull request.
 
  ## LICENSE
 
