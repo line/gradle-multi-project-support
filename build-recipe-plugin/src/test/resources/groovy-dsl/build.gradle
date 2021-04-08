@@ -28,35 +28,45 @@ plugins {
 
 // First form
 BuildRecipeExtensionsKt.configureByTypePrefix(project, "java") {
-    apply plugin: 'java'
-    println "$it is configured by type prefix java"
+    configure(it) {
+        apply plugin: 'java'
+        println "$it is configured by type prefix java"
+    }
 }
 
 // Second form
 use(BuildRecipeExtensionsKt, MatchersKt) {
     configure(byTypePrefix("java").and(byTypeSuffix('lib'))) {
-        apply plugin: 'java-library'
-        println "$it is configured by type prefix java and suffix lib"
+        configure(it) {
+            apply plugin: 'java-library'
+            println "$it is configured by type prefix java and suffix lib"
+        }
     }
 
     configureByTypeHaving(["boot"] as String[]) {
-        apply plugin: "org.springframework.boot"
-        println "$it is configured by type having boot"
+        configure(it) {
+            apply plugin: "org.springframework.boot"
+            println "$it is configured by type having boot"
+        }
     }
 
     configureByTypeSuffix("boot-lib") {
-        tasks.getByName("bootJar") {
-            enabled = false
-        }
+        configure(it) {
+            tasks.getByName("bootJar") {
+                enabled = false
+            }
 
-        println "$it is configured by type suffix boot-lib"
+            println "$it is configured by type suffix boot-lib"
+        }
     }
 
     configureByTypeSuffix("boot-application") {
-        tasks.getByName("bootJar") {
-            enabled = true
-        }
+        configure(it) {
+            tasks.getByName("bootJar") {
+                enabled = true
+            }
 
-        println "$it is configured by type suffix boot-application"
+            println "$it is configured by type suffix boot-application"
+        }
     }
 }

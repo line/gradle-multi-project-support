@@ -20,7 +20,8 @@ import assertk.assertThat
 import assertk.assertions.contains
 import org.gradle.kotlin.dsl.support.normaliseLineSeparators
 import org.gradle.testkit.runner.GradleRunner
-import org.junit.jupiter.api.Test
+import org.junit.jupiter.params.ParameterizedTest
+import org.junit.jupiter.params.provider.ValueSource
 import java.nio.file.Paths
 
 class FunctionalTest {
@@ -72,23 +73,10 @@ project ':juice:api:server' is configured by
  - type having [boot]
  - type suffix [boot-application]""".trimIndent().normaliseLineSeparators()
 
-    @Test
-    fun `kotlin dsl test`() {
-        val file = Paths.get(this::class.java.classLoader.getResource("kotlin-dsl")!!.toURI())
-
-        GradleRunner.create()
-                .withProjectDir(file.toFile())
-                .withPluginClasspath()
-                .withArguments("allProjectReport")
-                .build()
-                .also { println(it.output) }
-                .let { it.output.normaliseLineSeparators() }
-                .also { assertThat(it).contains(expected) }
-    }
-
-    @Test
-    fun `groovy dsl test`() {
-        val file = Paths.get(this::class.java.classLoader.getResource("groovy-dsl")!!.toURI())
+    @ParameterizedTest
+    @ValueSource(strings = ["kotlin-dsl", "groovy-dsl"])
+    fun `dsl test`(dslResource: String) {
+        val file = Paths.get(this::class.java.classLoader.getResource(dslResource)!!.toURI())
 
         GradleRunner.create()
                 .withProjectDir(file.toFile())
