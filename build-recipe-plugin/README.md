@@ -91,12 +91,18 @@ configureByType("type") {...} //shorthanded extension function
 ```groovy
 BuildRecipeExtensionKt.configureByType(project, "type") {
     // You can access target project via `it`
+    configure(it) {
+        ...
+    }
 }
 
 // Can be a shorthanded form inside use block
 use(BuildRecipeExtensionKt) {
-    configureByType("type") {    
+    configureByType("type") {
         // You can access target project via `it`
+        configure(it) {
+            ...
+        }
     }
 }
 ```
