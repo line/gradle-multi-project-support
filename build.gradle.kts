@@ -31,7 +31,7 @@ buildscript {
         }
     }
     dependencies {
-        classpath("org.gradle.kotlin:plugins:1.3.1")
+        classpath("org.gradle.kotlin:plugins:1.4.9")
     }
 }
 
